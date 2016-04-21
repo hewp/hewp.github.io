@@ -49,9 +49,8 @@ document.addEventListener('DOMContentLoaded', function () {
 		var total = 5;
 		//internal_counter keeps track of completely finished callbacks
 		//search_callback has run and all detail_callbacks have run
-		var search_counter = 0;
+		var internal_counter = 0;
 		
-		//prepare request to google places search
 		var request = {
 			location: location,
 			keyword: userInput,
@@ -61,6 +60,8 @@ document.addEventListener('DOMContentLoaded', function () {
 		if(type !== 'Any Type'){
 			request.type = type;
 		}
+		
+		console.log(request);
 		
 		//PlaceService class constructor
 		service = new google.maps.places.PlacesService(map);
@@ -78,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				}
 				
 				//create local counter for callback that counts down from outstanding processes. Limiting results to 5.
-				var detail_counter = total;
+				var local_counter = total;
 				
 				for (var i = 0; i < total; i++){
 					setTimeout(service.getDetails(results[i], fn_detailsCallback),2000);
@@ -89,15 +90,15 @@ document.addEventListener('DOMContentLoaded', function () {
 						detailObject = {place_id: result.place_id, name: result.name, formatted_address: result.formatted_address, location: result.geometry.location};
 						detailArray.push(detailObject);
 					
-						//reduce # of detailsCallback
-						if (--detail_counter === 0){
-							//increase # of callbacks ran
-							if(++search_counter === total) {
-								renderResults(detailArray, getJSONP);
-							}
+					//reduce # of detailsCallback
+					if (--local_counter === 0){
+						//increase # of callbacks ran
+						if(++internal_counter === total) {
+							renderResults(detailArray, getJSONP);
 						}
 					}
-				search_counter++;
+					}
+				internal_counter++;
 				}
 			}
 			if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS){
@@ -138,11 +139,14 @@ document.addEventListener('DOMContentLoaded', function () {
 			var markerList = document.getElementById('markerList')
 			var icon = document.createElement('img');
 			icon.src = markerIcon;
+			icon.setAttribute('id', 'img'+markerLetter);
 			icon.classList.add("place-icon");
 			icon.classList.add("render-icon");
-			icon.setAttribute("id", "img"+markerLetter);			
-			
 			markerList.appendChild(icon);
+			
+			if(markers[i]){
+				iconClick(i, markerLetter);
+			}
 	
 			//add place name and address li elements to DOM
 			var li = document.createElement("li");
@@ -160,15 +164,13 @@ document.addEventListener('DOMContentLoaded', function () {
 			li2.appendChild(address);
 			resultsArea.appendChild(li);
 			resultsArea.appendChild(li2);
-			//add listener when user clicks on icon, corresponding marker opens
-			if(markers[i]){
-				iconClick(i, markerLetter);
-			}
+			
 			//prepare url to get Instagram Photos
 			var lat = array[i].location.lat();
 			var lng = array[i].location.lng();
 			var accessToken = '249457765.1fb234f.adc28edf9d7f4ad2ad281752445eac86';
 			var url = 'https://api.instagram.com/v1/media/search?lat=' + lat + '&lng=' + lng + '&distance=100' + '&access_token=' + accessToken + '&callback=?';
+			console.log(url);
 			
 			getJSONP(url, success, i);
 		
@@ -178,7 +180,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	//function when user clicks icon
 	function iconClick(i, markerLetter){
 		var icon = document.getElementById("img" + markerLetter);
-		icon.onclick = function(){
+		icon.onclick = function(){	
 			google.maps.event.trigger(markers[i], 'click');
 		};
 	}
@@ -242,7 +244,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			body.removeChild(script);
 			success && success(data, i);
 		};
-
+		console.log(url);
 		script.src = url.replace('callback=?', 'callback=' + ud);
 		body.appendChild(script);
 	}
