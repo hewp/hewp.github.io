@@ -97,6 +97,7 @@ html, body {
   display: block;
   padding-bottom: 12px;	
   margin-bottom: 175px;
+  cursor: pointer;
 
 }
 .areaPost {

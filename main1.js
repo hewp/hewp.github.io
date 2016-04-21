@@ -56,12 +56,11 @@ document.addEventListener('DOMContentLoaded', function () {
 			keyword: userInput,
 			radius: radius
 		};
-
+		
+		//add type to request if user selects a type
 		if(type !== 'Any Type'){
 			request.type = type;
 		}
-		
-		console.log(request);
 		
 		//PlaceService class constructor
 		service = new google.maps.places.PlacesService(map);
@@ -109,11 +108,13 @@ document.addEventListener('DOMContentLoaded', function () {
 		}
 	}
 	
+	//display "No Results Text"
 	function noResults(){
 		var noResults = document.getElementById('noResults');
 		noResults.style.display = "block";
 	}
 	
+	//render results on map and in list
 	function renderResults(array, getJSONP) {
 		var name;
 		var address;
@@ -242,12 +243,13 @@ document.addEventListener('DOMContentLoaded', function () {
 		
 		//callback for JSON-P response
 		window[ud] = function(data) {
+			//added to prevent error Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node'
 			if (removed) return;
 			removed = true;
 			body.removeChild(script);
 			success && success(data, i);
 		};
-		console.log(url);
+
 		script.src = url.replace('callback=?', 'callback=' + ud);
 		body.appendChild(script);
 	}
