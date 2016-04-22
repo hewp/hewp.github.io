@@ -249,7 +249,13 @@ document.addEventListener('DOMContentLoaded', function () {
 				script.src = url.replace('callback=?', 'callback=' + ud);
 				body.appendChild(script);
 				body.removeChild(script);
-				success && success(data, i);
+				if(scriptNode !== null){
+					body.removeChild(script);
+					success && success(data, i);
+				}
+				else{
+					success && success(data, i);
+				}
 			}
 			else{
 				body.removeChild(script);
