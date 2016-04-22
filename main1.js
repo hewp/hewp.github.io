@@ -244,23 +244,10 @@ document.addEventListener('DOMContentLoaded', function () {
 		//callback for JSON-P response
 		window[ud] = function(data) {
 			//added to prevent error Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node'
-			var scriptNode = document.getElementById('script');
-			if(scriptNode === null){
-				script.src = url.replace('callback=?', 'callback=' + ud);
-				body.appendChild(script);
-				body.removeChild(script);
-				if(scriptNode !== null){
-					body.removeChild(script);
-					success && success(data, i);
-				}
-				else{
-					success && success(data, i);
-				}
-			}
-			else{
-				body.removeChild(script);
-				success && success(data, i);
-			}
+			if (removed) return window[ud];
+			removed = true;
+			body.removeChild(script);
+			success && success(data, i);
 		};
 
 		script.src = url.replace('callback=?', 'callback=' + ud);
