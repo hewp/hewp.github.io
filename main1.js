@@ -172,6 +172,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			var lng = array[i].location.lng();
 			var accessToken = '249457765.1fb234f.adc28edf9d7f4ad2ad281752445eac86';
 			var url = 'https://api.instagram.com/v1/media/search?lat=' + lat + '&lng=' + lng + '&distance=100' + '&access_token=' + accessToken + '&callback=?';
+			console.log(url);
 			
 			getJSONP(url, success, i);
 		
@@ -246,6 +247,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			setTimeout(script.parentNode.removeChild(script),5000);
 			success && success(data, i);
 		};
+		console.log(url);
 		body.appendChild(script);
 		script.src = url.replace('callback=?', 'callback=' + ud);
 		script.setAttribute('id', 'script' + i);
