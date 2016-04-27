@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		
 		//callback for JSON-P response
 		window[ud] = function(data) {
-			body.removeChild(script);
+			script.parentNode.removeChild(script);
 			success && success(data, i);
 		};
 
