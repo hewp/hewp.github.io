@@ -237,14 +237,14 @@ document.addEventListener('DOMContentLoaded', function () {
 	//Instagram API URL returns JSON-P format
 	function getJSONP(url, success, i) {
 
-		var ud = '_' + +new Date,
+		var ud = '_' + i,
         script = document.createElement('script'),
         body = document.getElementsByTagName('body')[0] 
 		
 		//callback for JSON-P response
 		window[ud] = function(data) {
 			//added to prevent error Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node'
-			setTimeout(script.parentNode.removeChild(script),5000);
+			script.parentNode.removeChild(script);
 			success && success(data, i);
 		};
 		console.log(url);
