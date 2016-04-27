@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			var lat = array[i].location.lat();
 			var lng = array[i].location.lng();
 			var accessToken = '249457765.1fb234f.adc28edf9d7f4ad2ad281752445eac86';
-			var url = 'https://api.instagram.com/v1/media/search?lat=' + lat + '&lng=' + lng + '&distance=5' + '&access_token=' + accessToken + '&callback=?';
+			var url = 'https://api.instagram.com/v1/media/search?lat=' + lat + '&lng=' + lng + '&distance=2' + '&access_token=' + accessToken + '&callback=?';
 			console.log(url);
 			
 			getJSONP(url, success, i);
