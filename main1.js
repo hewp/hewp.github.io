@@ -235,7 +235,6 @@ document.addEventListener('DOMContentLoaded', function () {
 	//JSON Call to URL
 	//Instagram API URL returns JSON-P format
 	function getJSONP(url, success, i) {
-		var removed = false;
 
 		var ud = '_' + +new Date,
         script = document.createElement('script'),
@@ -248,8 +247,9 @@ document.addEventListener('DOMContentLoaded', function () {
 			success && success(data, i);
 		};
 
-		script.src = url.replace('callback=?', 'callback=' + ud);
 		body.appendChild(script);
+		script.src = url.replace('callback=?', 'callback=' + ud);
+		
 	}
 	
 	//clear results area and li elements in DOM
