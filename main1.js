@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		//callback for JSON-P response
 		window[ud] = function(data) {
 			//added to prevent error Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node'
-			setTimeout(script.parentNode.removeChild(script), 10000);
+			script.parentNode.removeChild(script);
 			success && success(data, i);
 		};
 
