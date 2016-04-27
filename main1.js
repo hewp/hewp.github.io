@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				//callback function on getDetails response
 				function fn_detailsCallback(result, status){
 					if (status == google.maps.places.PlacesServiceStatus.OK) {
-						detailObject = {place_id: result.place_id, name: result.name, formatted_address: result.formatted_address, location: result.geometry.location};
+						detailObject = {place_id: result.place_id, name: result.name, formatted_address: result.formatted_address, location: result.geometry.location, placeIcon: result.icon};
 						detailArray.push(detailObject);
 					
 					//reduce # of detailsCallback
@@ -129,7 +129,8 @@ document.addEventListener('DOMContentLoaded', function () {
 			markers[i] = new google.maps.Marker({
 					position: array[i].location,
 					animation: google.maps.Animation.DROP,
-					icon: markerIcon
+					icon: markerIcon,
+					placeIcon: array[i].placeIcon
 					});
 			markers[i].name = array[i].name;
 			markers[i].coords = array[i].location;
@@ -269,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	//set infoWindow content and open when clicked
 	function showInfoWindow() {
         var marker = this;
-        infoWindow.setContent(marker.name);
+        infoWindow.setContent('<img src="' + marker.placeIcon + '" height="15" width="15">' + "  " + marker.name);
 		infoWindow.open(map, marker);  
     }
 	
