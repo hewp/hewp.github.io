@@ -2,6 +2,7 @@ html, body {
 	height: 100%;
 	margin: 0;
 	padding: 0;
+	resize: none;
 }
 
 .fields {
@@ -51,8 +52,7 @@ html, body {
 	width: 50%;
 	right: 0px;
 	top: 0px;
-	position: fixed;
-	float: right;
+	position: absolute;
 	
 }
 
@@ -64,7 +64,7 @@ html, body {
 	font-weight: bold;
 	color: white;
 	padding: 10px;
-
+	margin-bottom: 0px;
 }
 
 
@@ -132,6 +132,13 @@ html, body {
 }
 
 #img {
-	padding-bottom: 20px;
+	padding-bottom: 22px;
+	padding-right: 10px;
 }
 
+#wrapper {
+    margin-left:auto;
+    margin-right:auto;
+    position: relative;
+    height: 100%;
+}

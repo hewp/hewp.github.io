@@ -19,7 +19,10 @@ document.addEventListener('DOMContentLoaded', function () {
 			
 		autocomplete = new google.maps.places.Autocomplete(document.getElementById('autocomplete'));
 		autocomplete.addListener('place_changed', onPlaceChanged);
-		infoWindow = new google.maps.InfoWindow();		
+		infoWindow = new google.maps.InfoWindow();
+
+		
+
 		
 	}
 
@@ -31,6 +34,17 @@ document.addEventListener('DOMContentLoaded', function () {
 		if (place.geometry) {
 			map.panTo(place.geometry.location);
 			map.setZoom(12);
+			var marker = new google.maps.Marker({
+				position: place.geometry.location,
+				map: map,
+			});
+			marker.setPosition(place.geometry.location);
+			google.maps.event.addListener(marker, 'click', function showCenterWindow() {
+        		var marker = this;
+        		infoWindow.setContent(place.name);
+				infoWindow.open(map, marker);  
+  			 });
+
 		} else{
 			document.getElementById('autocomplete').placeholder = 'Enter a location';
 		}
@@ -81,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				var local_counter = total;
 				
 				for (var i = 0; i < total; i++){
-					setTimeout(service.getDetails(results[i], fn_detailsCallback),2000);
+					service.getDetails(results[i], fn_detailsCallback);
 				}
 				//callback function on getDetails response
 				function fn_detailsCallback(result, status){
@@ -93,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function () {
 					if (--local_counter === 0){
 						//increase # of callbacks ran
 						if(++internal_counter === total) {
-							renderResults(detailArray, getJSONP);
+							renderResults(detailArray, getLocationPhotos);
 						}
 					}
 					}
@@ -115,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 	
 	//render results on map and in list
-	function renderResults(array, getJSONP) {
+	function renderResults(array, getLocationPhotos) {
 		var name;
 		var address;
 		var resultsArea = document.getElementById("results");
@@ -165,34 +179,54 @@ document.addEventListener('DOMContentLoaded', function () {
 			li.appendChild(name);
 			li2.appendChild(address);
 			resultsArea.appendChild(li);
-			resultsArea.appendChild(li2);
-			
-			//prepare url to get Instagram Photos
-			var lat = array[i].location.lat();
-			var lng = array[i].location.lng();
-			var accessToken = '249457765.1fb234f.adc28edf9d7f4ad2ad281752445eac86';
-			var url = 'https://api.instagram.com/v1/media/search?lat=' + lat + '&lng=' + lng + '&distance=20' + '&access_token=' + accessToken + '&callback=?';
-			console.log(url);
-			
-			getJSONP(url, success, i);
-		
+			resultsArea.appendChild(li2);			
 		}
+
+		getLocationPhotos(array);
 	}
-	
-	//function when user clicks icon
-	function iconClick(i, markerLetter){
-		var icon = document.getElementById("img" + markerLetter);
-		icon.onclick = function(){	
-			google.maps.event.trigger(markers[i], 'click');
-		};
+
+	function getLocationPhotos(locations){
+    	if(locations.length) getLocation(locations, successCallback, 0);
 	}
-	
-	//post images as li in results unordered list in DOM
-	//callback if JSON-P response is successful
-	function success(response, i){
-		var results = document.getElementById("results");
-		var responseLength = response.data.length;
-		var totalResults = 5;
+
+	function getLocation (locations, successCallback, index) {
+        var lat = locations[index].location.lat();
+        var lng = locations[index].location.lng();
+        var accessToken = '249457765.1fb234f.adc28edf9d7f4ad2ad281752445eac86';
+        var url = 'https://api.instagram.com/v1/media/search?lat=' + lat + '&lng=' + lng + '&distance=20' + '&access_token=' + accessToken + '&callback=?';
+        getJSONP(url, function (response, index) {
+            successCallback(response, index);
+            if (locations.length - 1 > index) getLocation(locations, successCallback, index + 1);
+        }, index);
+	}
+
+	function getJSONP(url, successCallback, index) {
+
+        var ud = '_' + +new Date(),
+        script = document.createElement('script'),
+        body = document.getElementsByTagName('body')[0]; 
+
+        //callback for JSON-P response
+        window[ud] = function(data) {
+
+            script.parentNode.removeChild(script);
+            if(!data) return errorCallback(index, successCallback);
+            if(successCallback) successCallback(data, index);
+        };
+        console.log(url);
+        body.appendChild(script);
+        script.src = url.replace('callback=?', 'callback=' + ud);
+	}
+
+	function errorCallback(index, afterEndsCallback) {
+		console.log('Your index' + index + 'had a problem retrieving the data');
+  		afterEndsCallback([], index);
+	}
+
+	function successCallback(response, i){
+        var results = document.getElementById("results");
+        var responseLength = response.data.length;
+        var totalResults = 5;
 		
 		//cap photos to 5 or less
 		if(response.data.length < totalResults){
@@ -230,29 +264,18 @@ document.addEventListener('DOMContentLoaded', function () {
 			img.src = response.data[j].images.thumbnail.url;
 			results.appendChild(img);
 			img.id = "img";
-		}				
+		}
 	}
-	
-	//JSON Call to URL
-	//Instagram API URL returns JSON-P format
-	function getJSONP(url, success, i) {
 
-		var ud = '_' + i,
-        script = document.createElement('script'),
-        body = document.getElementsByTagName('body')[0] 
-		
-		//callback for JSON-P response
-		window[ud] = function(data) {
-			//added to prevent error Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node'
-			script.parentNode.removeChild(script);
-			success && success(data, i);
+	
+	//function when user clicks icon
+	function iconClick(i, markerLetter){
+		var icon = document.getElementById("img" + markerLetter);
+		icon.onclick = function(){	
+			google.maps.event.trigger(markers[i], 'click');
 		};
-		console.log(url);
-		body.appendChild(script);
-		script.src = url.replace('callback=?', 'callback=' + ud);
-		script.setAttribute('id', 'script' + i);
-		
 	}
+
 	
 	//clear results area and li elements in DOM
 	function clearResults() {
@@ -317,4 +340,9 @@ document.addEventListener('DOMContentLoaded', function () {
 	
 	//initialize map after window Dom is loaded
 	google.maps.event.addDomListener(window, 'load', initMap);  
+	google.maps.event.addDomListener(window, "resize", function() {
+ 		var center = map.getCenter();
+ 		google.maps.event.trigger(map, "resize");
+ 		map.setCenter(center);
+ 	});
 });
