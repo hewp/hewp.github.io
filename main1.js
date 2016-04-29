@@ -94,7 +94,8 @@ document.addEventListener('DOMContentLoaded', function () {
 		var resultsArray = [];
 		var detailArray = [];
 		var detailObject = {};
-		var total = 5;
+		var total = 10;
+		console.log("track");
 		//internal_counter keeps track of completely finished callbacks
 		//search_callback has run and all detail_callbacks have run
 		var internal_counter = 0;
@@ -261,7 +262,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	function successCallback(response, i){
         var results = document.getElementById("results");
         var responseLength = response.data.length;
-        var totalResults = 5;
+        var totalResults = 10;
 		
 		//cap photos to 5 or less
 		if(response.data.length < totalResults){
@@ -271,7 +272,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			responseLength = totalResults;
 		}
 
-		if(i < 5){		//i = results from search. capped at 5
+		if(i < 10){		//i = results from search. capped at 5
 		
 			if(responseLength == 0){						//if there are 0 images returned, use image placeholder
 				var img = document.createElement("IMG");
@@ -349,6 +350,8 @@ document.addEventListener('DOMContentLoaded', function () {
 		var locationMiss = document.getElementById('locationMiss');
 		var keywordMiss = document.getElementById('keywordMiss');
 		var radiusMiss = document.getElementById('radiusMiss');
+
+		locationMiss.style.display = 'none';
 		keywordMiss.style.display = 'none';
 		radiusMiss.style.display = 'none';
 		
@@ -362,7 +365,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		var type = document.getElementById('type').value;
 		
 		//show error messages if fields left blank
-		if(locationInput == ''){
+		if(locationCheck == ''){
 			locationMiss.style.display = 'block';
 			return;
 		}
