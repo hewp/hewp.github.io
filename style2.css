@@ -189,7 +189,7 @@ header h1{
 }
 
 .img {
-    margin-bottom: 21px;
+    margin-bottom: 22px;
     margin-right: 30px;
     margin-top: 1px;
     border: solid 1px #CCC;
@@ -200,11 +200,10 @@ header h1{
 }
 
 #container2 {
-    left: 35px;
-    padding: 10px;
+    left: 25px;
     position: absolute;
     top: 380px;
-    width: 300px;
+    width: 350px;
     height: 300px;
 
 }

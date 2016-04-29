@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	var MARKER_PATH = 'https://maps.gstatic.com/intl/en_us/mapfiles/marker_green';
 	var markers = [];
 	var resultsArray = [];
+	var markerBounds;
 
 	//Initialize Google Map centered on GooglePlex, autocomplete and infoWindow feature
     function initMap() {
@@ -16,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			center: myLatlng,
 			zoom: 12
         });
+
 		
 		var centerMarker = new google.maps.Marker({
 			map: map
@@ -31,6 +33,8 @@ document.addEventListener('DOMContentLoaded', function () {
 		infoWindow = new google.maps.InfoWindow();
 		//autocomplete.addListener('place_changed', onPlaceChanged);
 		autocomplete.addListener('place_changed', function() {
+			var correctLocation = document.getElementById('correctLocation');
+			correctLocation.style.display = 'none';
 		    infoWindow.close();
 		    centerMarker.setVisible(false);
 		    var place = autocomplete.getPlace();
@@ -49,7 +53,8 @@ document.addEventListener('DOMContentLoaded', function () {
         		infoWindow.setContent(place.name);
 				infoWindow.open(map, marker);
 			});
-
+		    clearMarkers();
+		    clearResults();
 		});
 
 	}
@@ -68,6 +73,9 @@ document.addEventListener('DOMContentLoaded', function () {
 		//internal_counter keeps track of completely finished callbacks
 		//search_callback has run and all detail_callbacks have run
 		var internal_counter = 0;
+
+		//reset marker boundaries
+        markerBounds = new google.maps.LatLngBounds();
 		
 		var request = {
 			location: location,
@@ -91,6 +99,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		//renderResults after detailArray is final
 		function fn_searchCallback(results, status) {
 			if (status == google.maps.places.PlacesServiceStatus.OK) {
+
 				if(results.length < total){
 					total = results.length;
 				}
@@ -99,12 +108,14 @@ document.addEventListener('DOMContentLoaded', function () {
 				var local_counter = total;
 				
 				for (var i = 0; i < total; i++){
-					setTimeout(service.getDetails(results[i], fn_detailsCallback),200);
+					setTimeout(service.getDetails(results[i], fn_detailsCallback),2000);
 				}
 
 				//callback function on getDetails response
 				function fn_detailsCallback(result, status){
+					console.log(status);
 					if (status == google.maps.places.PlacesServiceStatus.OK) {
+						console.log("OK2");
 						detailObject = {place_id: result.place_id, name: result.name, formatted_address: result.formatted_address, location: result.geometry.location, placeIcon: result.icon};
 						detailArray.push(detailObject);
 					
@@ -116,7 +127,18 @@ document.addEventListener('DOMContentLoaded', function () {
 						}
 					}
 					}
+					else{
+						//add Timeout if OVER_QUERY_LIMIT status is reached
+						if (status === google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT){
+							setTimeout(function(){
+								service.getDetails(results[internal_counter], fn_detailsCallback);
+							}, 200);
+							return;
+						}
+					}
+					
 				internal_counter++;
+				console.log(internal_counter);
 				}
 			}
 
@@ -125,7 +147,9 @@ document.addEventListener('DOMContentLoaded', function () {
 				noResults();
 				return;
 			}
-				
+			else{
+				console.log(status);	
+			}
 		}
 	}
 	
@@ -157,6 +181,9 @@ document.addEventListener('DOMContentLoaded', function () {
 			markers[i].coords = array[i].location;
 			google.maps.event.addListener(markers[i], 'click', showInfoWindow);
 			setTimeout(markers[i].setMap(map), i * 500);
+
+			//add marker position to boundaries object 
+			markerBounds.extend(array[i].location);
 			
 			//add marker li elements to DOM
 			var markerList = document.getElementById('markerList')
@@ -191,6 +218,8 @@ document.addEventListener('DOMContentLoaded', function () {
 			resultsArea.appendChild(li2);			
 		}
 
+		//adjust zoom to appropriately fit all markers (both in and out)
+		map.fitBounds(markerBounds);
 		getLocationPhotos(array);
 	}
 
@@ -327,13 +356,19 @@ document.addEventListener('DOMContentLoaded', function () {
 	document.getElementById("button1").addEventListener('click', function(){
 		//make sure error results are not displayed
 		var locationMiss = document.getElementById('locationMiss');
+		var correctLocation = document.getElementById('correctLocation');
 		var keywordMiss = document.getElementById('keywordMiss');
 		var radiusMiss = document.getElementById('radiusMiss');
+		var overRadius = document.getElementById('overRadius');
+		var correctRadius = document.getElementById('correctRadius');
 
 		locationMiss.style.display = 'none';
+		correctLocation.style.display = 'none';
 		keywordMiss.style.display = 'none';
 		radiusMiss.style.display = 'none';
-		
+		overRadius.style.display = 'none';
+		correctRadius.style.display = 'none';
+
 		clearMarkers();
 		clearResults();
 		
@@ -344,6 +379,10 @@ document.addEventListener('DOMContentLoaded', function () {
 		var type = document.getElementById('type').value;
 		
 		//show error messages if fields left blank
+		if(!locationInput){
+			correctLocation.style.display = 'block';
+			return;
+		}
 		if(locationCheck == ''){
 			locationMiss.style.display = 'block';
 			return;
@@ -356,8 +395,18 @@ document.addEventListener('DOMContentLoaded', function () {
 			radiusMiss.style.display = 'block';
 			return;
 		}  
-		  
-		  getPlaces(userInput, locationInput, radius, type);
+		
+		if(radius > 30){
+			overRadius.style.display = 'block';
+			return;
+		}
+
+		if(isNaN(radius)){
+			correctRadius.style.display ='block';
+			return;
+		}
+
+		getPlaces(userInput, locationInput, radius, type);
 		  
 	  });
 	

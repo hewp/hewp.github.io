@@ -19,8 +19,11 @@
 			<div id="container2">
 				
 				<p class="miss" id="locationMiss">Enter a Location</p>
+				<p class="miss" id="correctLocation">Select a location from Google Autocomplete</p>
 				<p class="miss" id="keywordMiss">Enter a Keyword</p>
 				<p class="miss" id="radiusMiss">Enter a Radius</p>
+				<p class="miss" id="overRadius">Please enter a radius 30 miles or less</p>
+				<p class="miss" id="correctRadius">Please enter a valid number for radius</p>
 			</div>
 
 			<div class="fieldPanel">
@@ -57,7 +60,7 @@
 					</select>
 				</div>
 				<div class="button" id="radiusButton">
-					<label for="radius">Radius (miles):</label>
+					<label for="radius">Radius (miles, max 30):</label>
 					<input id="radius" placeholder="Enter radius" size="15" type="text"/>
 				</div>
 				<div id="button1" class="button" type="submit">Search</div>
