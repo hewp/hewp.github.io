@@ -10,28 +10,59 @@ document.addEventListener('DOMContentLoaded', function () {
 	//Initialize Google Map centered on GooglePlex, autocomplete and infoWindow feature
     function initMap() {
 		
-		var myLatlng = {lat: 37.77493, lng: -122.41942};
+		var myLatlng = {lat: 37.7836887, lng: -122.4112196};
 
         map = new google.maps.Map(document.getElementById('map'), {
 			center: myLatlng,
 			zoom: 12
         });
-			
+		
+		var centerMarker = new google.maps.Marker({
+			map: map
+		});
+		centerMarker.setPosition(myLatlng);
+		google.maps.event.addListener(centerMarker, 'click', function(){
+			var marker = this;
+        		infoWindow.setContent('Hack Reactor');
+				infoWindow.open(map, marker);
+		});
+
 		autocomplete = new google.maps.places.Autocomplete(document.getElementById('autocomplete'));
-		autocomplete.addListener('place_changed', onPlaceChanged);
 		infoWindow = new google.maps.InfoWindow();
+		//autocomplete.addListener('place_changed', onPlaceChanged);
+		autocomplete.addListener('place_changed', function() {
+		    infoWindow.close();
+		    centerMarker.setVisible(false);
+		    var place = autocomplete.getPlace();
+		    if (!place.geometry) {
+		      window.alert("Autocomplete's returned place contains no geometry");
+		      return;
+		    }
 
-		
+		    map.setCenter(place.geometry.location);
+		    map.setZoom(12);  
 
-		
+		    centerMarker.setPosition(place.geometry.location);
+		    centerMarker.setVisible(true);
+		    google.maps.event.addListener(centerMarker, 'click', function(){
+			var marker = this;
+        		infoWindow.setContent(place.name);
+				infoWindow.open(map, marker);
+			});
+
+		});
+
 	}
 
 	//map will center to new location when user selects location from autocomplete field
-	function onPlaceChanged() {
+	/*function onPlaceChanged() {
 
 		var place = autocomplete.getPlace();
-			
+		centerMarker.setVisible(false);
+		console.log(centerMarker);
 		if (place.geometry) {
+			console.log(marker);
+
 			map.panTo(place.geometry.location);
 			map.setZoom(12);
 			var marker = new google.maps.Marker({
@@ -39,19 +70,22 @@ document.addEventListener('DOMContentLoaded', function () {
 				map: map,
 			});
 			marker.setPosition(place.geometry.location);
-			google.maps.event.addListener(marker, 'click', function showCenterWindow() {
+			google.maps.event.addListener(marker, 'click', 	function showCenterWindow() {
         		var marker = this;
         		infoWindow.setContent(place.name);
 				infoWindow.open(map, marker);  
   			 });
+			marker.setVisible(true);
 
 		} else{
 			document.getElementById('autocomplete').placeholder = 'Enter a location';
 		}
 			
 		clearResults();
-	}
+	}*/
 	
+
+
 	//Find places in vicinity of location selected by user. Uses Google Places API radarSearch and getDetails
 	function getPlaces(userInput, locInput, radius, type){
 		
@@ -167,6 +201,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			//add place name and address li elements to DOM
 			var li = document.createElement("li");
 			li.setAttribute("id", "li" + idTag);
+			li.setAttribute("class", "li_name");
 			var li2 = document.createElement("li");
 			li2.setAttribute("id", "li" + (idTag + 1));
 			li2.setAttribute("class", "li_address");
@@ -244,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				var indexNode = (i * 2) + 2;
 				var referenceNode = document.getElementById("li" + indexNode);
 				results.insertBefore(img, referenceNode);
-				img.id = "img";
+				img.setAttribute("class", "img");
 				return;				
 			}
 			for(var j = 0; j < responseLength; j++){
@@ -256,14 +291,14 @@ document.addEventListener('DOMContentLoaded', function () {
 				var indexNode = (i * 2) + 2;
 				var referenceNode = document.getElementById("li" + indexNode);
 				results.insertBefore(img, referenceNode);
-				img.id = "img";
+				img.setAttribute("class", "img");
 			}
 		}
 		else { //last node, use appendChild
 			var img = document.createElement("IMG");
 			img.src = response.data[j].images.thumbnail.url;
 			results.appendChild(img);
-			img.id = "img";
+			img.setAttribute("class", "img");
 		}
 	}
 
@@ -309,8 +344,9 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 	
 	//event listener when user clicks submit
-	document.getElementById("btn").addEventListener('click', function(){
+	document.getElementById("button1").addEventListener('click', function(){
 		//make sure error results are not displayed
+		var locationMiss = document.getElementById('locationMiss');
 		var keywordMiss = document.getElementById('keywordMiss');
 		var radiusMiss = document.getElementById('radiusMiss');
 		keywordMiss.style.display = 'none';
@@ -321,10 +357,15 @@ document.addEventListener('DOMContentLoaded', function () {
 		
 		var userInput = document.getElementById('placeSearch').value;
 		var locationInput = autocomplete.getPlace();
+		var locationCheck = document.getElementById('autocomplete').value;
 		var radius = document.getElementById('radius').value;
 		var type = document.getElementById('type').value;
 		
 		//show error messages if fields left blank
+		if(locationInput == ''){
+			locationMiss.style.display = 'block';
+			return;
+		}
 		if(userInput == ''){
 			keywordMiss.style.display = 'block';
 			return;
@@ -340,9 +381,5 @@ document.addEventListener('DOMContentLoaded', function () {
 	
 	//initialize map after window Dom is loaded
 	google.maps.event.addDomListener(window, 'load', initMap);  
-	google.maps.event.addDomListener(window, "resize", function() {
- 		var center = map.getCenter();
- 		google.maps.event.trigger(map, "resize");
- 		map.setCenter(center);
- 	});
+
 });

@@ -1,70 +1,84 @@
 <!DOCTYPE html>
 <html>
   	<head>
-	    <title>Places and Instagram App</title>
+	    <title>Google Places and Instagram App</title>
 		<meta name="viewport" content="initial-scale=1.0">
 	    <meta charset="utf-8">
-		<link href="style1.css" rel="stylesheet">
+		<link href="style2.css" rel="stylesheet">
 		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCxUwNycYzt3GGO0FvZGYJd3zUQQDEFal8&libraries=places"></script>
-	    
+		<script src="main1.js"></script>
 	  </head>
   	<body>
-	  	<div id="wrapper">
-			<div id="header">
-				<p id="title">Google Places and Photos Application</p>
-			</div>
-			
-			<div id="locationField">
-				<input id="autocomplete" placeholder="Enter a location. Select from Google Autocomplete" size="50" type="text" />
-				
-			</div>
-			<div id="placesField" class="fields">
-				<input id="placeSearch" placeholder="Enter a place or keyword" size="50" type="text"/>
-				<input id="radius" placeholder="Enter radius (m)" size="15" type="text"/></label>
-				<select name="types" id="type">
-					<option value="Any Type">Any Type</option>
-					<option value="amusement_park">amusement_park</option>
-					<option value="bakery">bakery</option>
-					<option value="bar">bar</option>
-					<option value="cafe">cafe</option>
-					<option value="campground">campground</option>
-					<option value="car_repair">car_repair</option>
-					<option value="casino">casino</option>
-					<option value="gas_station">gas_station</option>
-					<option value="grocery_or_supermarket">grocery_or_supermarket</option>
-					<option value="hospital">hospital</option>
-					<option value="lodging">lodging</option>
-					<option value="movie_theater">movie_theater</option>
-					<option value="museum">museum</option>
-					<option value="night_club">night_club</option>
-					<option value="park">park</option>
-					<option value="restaurant">restaurant</option>
-					<option value="store">store</option>
-					<option value="zoo">zoo</option>
-				</select>
-			</div>
-				
-			<div id="button">	
-				<button type="submit" id="btn">Search</button>
+  		<header>
+  			<h1>Find Places and See Nearby Instagram Photos!</h1>
+  		</header>
+	  	<div id="container" class="container">
+
+			<div id="map"></div>
+
+			<div id="container2">
+				<p id="noResults">Search Returned No Results</p>
+				<p class="miss" id="locationMiss">Enter a Location</p>
+				<p class="miss" id="keywordMiss">Enter a Keyword</p>
+				<p class="miss" id="radiusMiss">Enter a Radius</p>
 			</div>
 
+			<div class="fieldPanel">
+				<div class="button">
+					<label for="autocomplete">Enter a location:</label>
+					<input id="autocomplete" placeholder="Select from Google Autocomplete" size="50" type="text" />
+				</div>
+				<div class="button">
+					<label for="placeSearch">Enter a keyword:</label>
+					<input id="placeSearch" placeholder="Enter a place or keyword" size="50" type="text"/>
+				</div>
+				<div class="button">
+					<label for="type">Type (optional):</label>
+					<select id="type">
+						<option value="Any Type">Any Type</option>
+						<option value="amusement_park">amusement_park</option>
+						<option value="bakery">bakery</option>
+						<option value="bar">bar</option>
+						<option value="cafe">cafe</option>
+						<option value="campground">campground</option>
+						<option value="car_repair">car_repair</option>
+						<option value="casino">casino</option>
+						<option value="gas_station">gas_station</option>
+						<option value="grocery_or_supermarket">grocery_or_supermarket</option>
+						<option value="hospital">hospital</option>
+						<option value="lodging">lodging</option>
+						<option value="movie_theater">movie_theater</option>
+						<option value="museum">museum</option>
+						<option value="night_club">night_club</option>
+						<option value="park">park</option>
+						<option value="restaurant">restaurant</option>
+						<option value="store">store</option>
+						<option value="zoo">zoo</option>
+					</select>
+				</div>
+				<div class="button">
+					<label for="radius">Radius (meters):</label>
+					<input id="radius" placeholder="Enter radius" size="15" type="text"/>
+				</div>
+				<div id="button1" class="button" type="submit">Search</div>
+			</div>	
+			
+
 			<div id="resultsArea">	
-				<p id="resultsTitle">Results</p>
+				<h1 id="resultsTitle">Results</h1>
 				<div class="areaPost" id="markersPost">
 					<ul id="markerList"></ul>
 				</div>
 				<div class="areaPost">
-					<ul id="results" id="resultsPost"></ul>
+					<ul id="results"></ul>
 				</div>
 			</div>
 			
-			<div id="map"></div>
+
+
+				
 			
-			<p id="noResults">Search Returned No Results</p>
-			<p class="miss" id="keywordMiss">Enter a Keyword</p>
-			<p class="miss" id="radiusMiss">Enter a Radius</p>		
 			
-			<script src="main1.js"></script>
 	  	</div>
   	</body>
 </html>
