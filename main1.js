@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		var detailArray = [];
 		var detailObject = {};
 		var total = 10;
-		console.log("track");
+
 		//internal_counter keeps track of completely finished callbacks
 		//search_callback has run and all detail_callbacks have run
 		var internal_counter = 0;
