@@ -54,38 +54,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	}
 
-	//map will center to new location when user selects location from autocomplete field
-	/*function onPlaceChanged() {
-
-		var place = autocomplete.getPlace();
-		centerMarker.setVisible(false);
-		console.log(centerMarker);
-		if (place.geometry) {
-			console.log(marker);
-
-			map.panTo(place.geometry.location);
-			map.setZoom(12);
-			var marker = new google.maps.Marker({
-				position: place.geometry.location,
-				map: map,
-			});
-			marker.setPosition(place.geometry.location);
-			google.maps.event.addListener(marker, 'click', 	function showCenterWindow() {
-        		var marker = this;
-        		infoWindow.setContent(place.name);
-				infoWindow.open(map, marker);  
-  			 });
-			marker.setVisible(true);
-
-		} else{
-			document.getElementById('autocomplete').placeholder = 'Enter a location';
-		}
-			
-		clearResults();
-	}*/
-	
-
-
 	//Find places in vicinity of location selected by user. Uses Google Places API radarSearch and getDetails
 	function getPlaces(userInput, locInput, radius, type){
 		
@@ -95,6 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		var detailArray = [];
 		var detailObject = {};
 		var total = 10;
+		var radiusMeters = radius * 1609.34;  //convert radius from miles to meters
 
 		//internal_counter keeps track of completely finished callbacks
 		//search_callback has run and all detail_callbacks have run
@@ -103,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		var request = {
 			location: location,
 			keyword: userInput,
-			radius: radius
+			radius: radiusMeters	
 		};
 		
 		//add type to request if user selects a type
@@ -126,12 +95,13 @@ document.addEventListener('DOMContentLoaded', function () {
 					total = results.length;
 				}
 				
-				//create local counter for callback that counts down from outstanding processes. Limiting results to 5.
+				//create local counter for callback that counts down from outstanding processes. Limiting results to 10.
 				var local_counter = total;
 				
 				for (var i = 0; i < total; i++){
-					service.getDetails(results[i], fn_detailsCallback);
+					setTimeout(service.getDetails(results[i], fn_detailsCallback),200);
 				}
+
 				//callback function on getDetails response
 				function fn_detailsCallback(result, status){
 					if (status == google.maps.places.PlacesServiceStatus.OK) {
@@ -149,6 +119,8 @@ document.addEventListener('DOMContentLoaded', function () {
 				internal_counter++;
 				}
 			}
+
+			//event handling if status return is ZERO_RESULTS
 			if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS){
 				noResults();
 				return;
@@ -195,6 +167,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			icon.classList.add("render-icon");
 			markerList.appendChild(icon);
 			
+			//functionality when user clicks on icon in results area, corresponding marker infoWindow opens
 			if(markers[i]){
 				iconClick(i, markerLetter);
 			}
@@ -226,12 +199,15 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 
 	function getLocation (locations, successCallback, index) {
+		//create URL for Instagram JSON-P response
         var lat = locations[index].location.lat();
         var lng = locations[index].location.lng();
         var accessToken = '249457765.1fb234f.adc28edf9d7f4ad2ad281752445eac86';
         var url = 'https://api.instagram.com/v1/media/search?lat=' + lat + '&lng=' + lng + '&distance=20' + '&access_token=' + accessToken + '&callback=?';
+
         getJSONP(url, function (response, index) {
             successCallback(response, index);
+            //make sure photos are rendered in order by location
             if (locations.length - 1 > index) getLocation(locations, successCallback, index + 1);
         }, index);
 	}
@@ -249,22 +225,25 @@ document.addEventListener('DOMContentLoaded', function () {
             if(!data) return errorCallback(index, successCallback);
             if(successCallback) successCallback(data, index);
         };
-        console.log(url);
+
         body.appendChild(script);
         script.src = url.replace('callback=?', 'callback=' + ud);
 	}
 
+	//if error encountered, execute successCallback at same index
 	function errorCallback(index, afterEndsCallback) {
 		console.log('Your index' + index + 'had a problem retrieving the data');
   		afterEndsCallback([], index);
 	}
 
+	//Insert images at appropriate nodes
 	function successCallback(response, i){
         var results = document.getElementById("results");
         var responseLength = response.data.length;
+        //cap photos to 10
         var totalResults = 10;
 		
-		//cap photos to 5 or less
+		//cap photos to 10 or less
 		if(response.data.length < totalResults){
 			responseLength = response.data.length;
 		}
@@ -272,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			responseLength = totalResults;
 		}
 
-		if(i < 10){		//i = results from search. capped at 5
+		if(i < 10){		//i = results from search, capped at 10
 		
 			if(responseLength == 0){						//if there are 0 images returned, use image placeholder
 				var img = document.createElement("IMG");
