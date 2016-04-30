@@ -22,6 +22,8 @@ document.addEventListener('DOMContentLoaded', function () {
 		var centerMarker = new google.maps.Marker({
 			map: map
 		});
+
+		//add a center marker for location (red)
 		centerMarker.setPosition(myLatlng);
 		google.maps.event.addListener(centerMarker, 'click', function(){
 			var marker = this;
@@ -31,18 +33,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
 		autocomplete = new google.maps.places.Autocomplete(document.getElementById('autocomplete'));
 		infoWindow = new google.maps.InfoWindow();
-		//autocomplete.addListener('place_changed', onPlaceChanged);
+		
+		//event for place changed in autocomplete field
 		autocomplete.addListener('place_changed', function() {
 			var correctLocation = document.getElementById('correctLocation');
 			correctLocation.style.display = 'none';
 		    infoWindow.close();
 		    centerMarker.setVisible(false);
+
 		    var place = autocomplete.getPlace();
 		    if (!place.geometry) {
 		      window.alert("Autocomplete's returned place contains no geometry");
 		      return;
 		    }
 
+		    //recenter center marker
 		    map.setCenter(place.geometry.location);
 		    map.setZoom(12);  
 
@@ -115,7 +120,6 @@ document.addEventListener('DOMContentLoaded', function () {
 				function fn_detailsCallback(result, status){
 					console.log(status);
 					if (status == google.maps.places.PlacesServiceStatus.OK) {
-						console.log("OK2");
 						detailObject = {place_id: result.place_id, name: result.name, formatted_address: result.formatted_address, location: result.geometry.location, placeIcon: result.icon};
 						detailArray.push(detailObject);
 					
@@ -138,7 +142,6 @@ document.addEventListener('DOMContentLoaded', function () {
 					}
 					
 				internal_counter++;
-				console.log(internal_counter);
 				}
 			}
 
@@ -146,9 +149,6 @@ document.addEventListener('DOMContentLoaded', function () {
 			if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS){
 				noResults();
 				return;
-			}
-			else{
-				console.log(status);	
 			}
 		}
 	}
@@ -220,13 +220,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
 		//adjust zoom to appropriately fit all markers (both in and out)
 		map.fitBounds(markerBounds);
+		//get Instagram photos
 		getLocationPhotos(array);
 	}
 
+
+	//AJAX requests are asynchronous, use stored array and index to retreive data in order
 	function getLocationPhotos(locations){
     	if(locations.length) getLocation(locations, successCallback, 0);
 	}
 
+	//retrieve photos from Instagram
 	function getLocation (locations, successCallback, index) {
 		//create URL for Instagram JSON-P response
         var lat = locations[index].location.lat();
@@ -236,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         getJSONP(url, function (response, index) {
             successCallback(response, index);
-            //make sure photos are rendered in order by location
+            //make sure photos are rendered in order
             if (locations.length - 1 > index) getLocation(locations, successCallback, index + 1);
         }, index);
 	}
